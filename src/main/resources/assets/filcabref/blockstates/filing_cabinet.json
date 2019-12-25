@@ -1,0 +1,36 @@
+{
+  "forge_marker": 1,
+  "defaults": {
+    "model": "filcabref:filing_cabinet"
+  },
+  "variants": {
+    "type": {
+      "basic": {
+        "textures": {
+          "front": "filcabref:blocks/filing_cabinet/basic/front",
+          "side": "filcabref:blocks/filing_cabinet/basic/side"
+        }
+      },
+      "advanced": {
+        "textures": {
+          "front": "filcabref:blocks/filing_cabinet/advanced/front",
+          "side": "filcabref:blocks/filing_cabinet/advanced/side"
+        }
+      }
+    },
+    "rotation": {
+      "north": {
+        "y": 0
+      },
+      "east": {
+        "y": 90
+      },
+      "south": {
+        "y": 180
+      },
+      "west": {
+        "y": 270
+      }
+    }
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "type": "forge:ore_shaped",
+  "pattern": [
+    "FCF",
+    "RCR",
+    "FCF"
+  ],
+  "key": {
+    "F": {
+      "item": "filcabref:material",
+      "data": 1
+    },
+    "C": {
+      "item": "filcabref:filing_cabinet",
+      "data": 0
+    },
+    "R": {
+      "item": "minecraft:golden_rail"
+    }
+  },
+  "result": {
+    "item": "filcabref:filing_cabinet",
+    "count": 1,
+    "data": 1
+  }
+}

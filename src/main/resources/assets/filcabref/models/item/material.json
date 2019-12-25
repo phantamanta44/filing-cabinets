@@ -1,0 +1,20 @@
+{
+  "9s": "pi",
+  "archetype": {
+    "parent": "item/generated"
+  },
+  "mutations": {
+    "type": {
+      "IRON_FRAMING": {
+        "textures": {
+          "layer0": "filcabref:items/framing/iron"
+        }
+      },
+      "GOLD_FRAMING": {
+        "textures": {
+          "layer0": "filcabref:items/framing/gold"
+        }
+      }
+    }
+  }
+}

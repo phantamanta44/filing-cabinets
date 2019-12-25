@@ -1,0 +1,29 @@
+{
+  "9s": "pi",
+  "archetype": {
+    "parent": "filcabref:block/filing_cabinet",
+    "display": {
+      "firstperson_righthand": {
+        "rotation": [0, 135, 0],
+        "translation": [0, 0, 0],
+        "scale": [0.40, 0.40, 0.40]
+      }
+    }
+  },
+  "mutations": {
+    "type": {
+      "BASIC": {
+        "textures": {
+          "front": "filcabref:blocks/filing_cabinet/basic/front",
+          "side": "filcabref:blocks/filing_cabinet/basic/side"
+        }
+      },
+      "ADVANCED": {
+        "textures": {
+          "front": "filcabref:blocks/filing_cabinet/advanced/front",
+          "side": "filcabref:blocks/filing_cabinet/advanced/side"
+        }
+      }
+    }
+  }
+}
