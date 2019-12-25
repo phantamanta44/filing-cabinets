@@ -1,0 +1,27 @@
+{
+  "type": "forge:ore_shaped",
+  "pattern": [
+    "RRR",
+    "FCF",
+    "RRR"
+  ],
+  "key": {
+    "R": {
+      "type": "forge:ore_dict",
+      "ore": "dustRedstone"
+    },
+    "F": {
+      "item": "filcabref:material",
+      "data": 1
+    },
+    "C": {
+      "item": "filcabref:filing_cabinet",
+      "data": 0
+    }
+  },
+  "result": {
+    "item": "filcabref:material",
+    "count": 1,
+    "data": 2
+  }
+}

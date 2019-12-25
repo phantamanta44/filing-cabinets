@@ -1,7 +1,6 @@
 package xyz.phanta.filcabref.block.filing_cabinet;
 
 import io.github.phantamanta44.libnine.block.L9BlockStated;
-import io.github.phantamanta44.libnine.item.L9ItemBlock;
 import io.github.phantamanta44.libnine.util.collection.Accrue;
 import io.github.phantamanta44.libnine.util.world.WorldBlockPos;
 import io.github.phantamanta44.libnine.util.world.WorldUtils;
@@ -27,6 +26,7 @@ import xyz.phanta.filcabref.init.FilingCabinetsGuis;
 
 import javax.annotation.Nullable;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Supplier;
 
 public class BlockFilingCabinet extends L9BlockStated {
@@ -88,8 +88,12 @@ public class BlockFilingCabinet extends L9BlockStated {
     public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player,
                                     EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ) {
         if (!world.isRemote) {
-            FilingCabinetsMod.INSTANCE.getGuiHandler().openGui(
-                    player, FilingCabinetsGuis.FILING_CABINET, new WorldBlockPos(world, pos));
+            TileFilingCabinet tile = Objects.requireNonNull(getTileEntity(world, pos));
+            if (!(tile.installCapacityUpgrade(player, player.getHeldItemMainhand())
+                    || tile.installCapacityUpgrade(player, player.getHeldItemOffhand()))) {
+                FilingCabinetsMod.INSTANCE.getGuiHandler().openGui(
+                        player, FilingCabinetsGuis.FILING_CABINET, new WorldBlockPos(world, pos));
+            }
         }
         return true;
     }
@@ -152,7 +156,7 @@ public class BlockFilingCabinet extends L9BlockStated {
         }
 
         public ItemStack newStack(int count) {
-            return new ItemStack(FilingCabinetsBlocks.FILING_CABINET, count);
+            return new ItemStack(FilingCabinetsBlocks.FILING_CABINET, count, getItemMeta());
         }
 
     }

@@ -6,11 +6,20 @@ import io.github.phantamanta44.libnine.tile.RegisterTile;
 import io.github.phantamanta44.libnine.util.data.ByteUtils;
 import io.github.phantamanta44.libnine.util.data.ISerializable;
 import io.github.phantamanta44.libnine.util.data.serialization.AutoSerialize;
+import io.github.phantamanta44.libnine.util.data.serialization.IDatum;
+import io.github.phantamanta44.libnine.util.helper.ItemUtils;
 import io.github.phantamanta44.libnine.util.world.WorldUtils;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.init.SoundEvents;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+import net.minecraft.network.play.server.SPacketSoundEffect;
+import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.common.util.Constants;
@@ -19,7 +28,10 @@ import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemHandlerHelper;
 import xyz.phanta.filcabref.FilingCabinetsConfig;
 import xyz.phanta.filcabref.FilingCabinetsMod;
+import xyz.phanta.filcabref.constant.LangConst;
+import xyz.phanta.filcabref.item.ItemMaterial;
 import xyz.phanta.filcabref.util.SlottedStorage;
+import xyz.phanta.filcabref.util.TextStyles;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -27,11 +39,16 @@ import java.util.function.Predicate;
 
 public abstract class TileFilingCabinet extends L9TileEntity {
 
+    private final Predicate<ItemStack> upgradeMatcher;
+
     @AutoSerialize
     private final CabinetInventory inventory;
+    @AutoSerialize
+    private final IDatum.OfInt upgradeCount = IDatum.ofInt(0);
 
-    TileFilingCabinet(FilingCabinetsConfig.CabinetConfig config) {
-        this.inventory = new CabinetInventory(config.numSlots, config.numItems);
+    TileFilingCabinet(FilingCabinetsConfig.CabinetConfig config, Predicate<ItemStack> upgradeMatcher) {
+        this.upgradeMatcher = upgradeMatcher;
+        this.inventory = new CabinetInventory(config.numSlots, config.numItems, FilingCabinetsConfig.upgradeCapacity);
         markRequiresSync();
     }
 
@@ -50,6 +67,33 @@ public abstract class TileFilingCabinet extends L9TileEntity {
         return inventory;
     }
 
+    public boolean installCapacityUpgrade(EntityPlayer player, ItemStack stack) {
+        if (!stack.isEmpty() && upgradeMatcher.test(stack)) {
+            ITextComponent msg;
+            if (upgradeCount.getInt() < FilingCabinetsConfig.upgradeCountMax) {
+                if (!player.capabilities.isCreativeMode) {
+                    stack.shrink(1);
+                }
+                upgradeCount.preincrement();
+                setDirty();
+                ((EntityPlayerMP)player).connection.sendPacket(new SPacketSoundEffect(
+                        SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP, SoundCategory.MASTER,
+                        player.posX, player.posY, player.posZ, 1F, 1F));
+                msg = new TextComponentTranslation(LangConst.NOTIF_CAP_UPGRADE_SUCCESS);
+                msg.setStyle(TextStyles.SUCCESS);
+            } else {
+                ((EntityPlayerMP)player).connection.sendPacket(new SPacketSoundEffect(
+                        SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP, SoundCategory.MASTER,
+                        player.posX, player.posY, player.posZ, 1F, 0.5F));
+                msg = new TextComponentTranslation(LangConst.NOTIF_CAP_UPGRADE_MAXED);
+                msg.setStyle(TextStyles.FAIL);
+            }
+            player.sendStatusMessage(msg, true);
+            return true;
+        }
+        return false;
+    }
+
     public void dropInventory(World world, Vec3d pos) {
         for (CabinetInventory.CabinetSlot slot : inventory.slots) {
             ItemStack stack = slot.createFullStack();
@@ -60,21 +104,27 @@ public abstract class TileFilingCabinet extends L9TileEntity {
             }
             WorldUtils.dropItem(world, pos, stack);
         }
+        int upgrades = upgradeCount.getInt();
+        if (upgrades > 0) {
+            WorldUtils.dropItem(world, pos, ItemMaterial.Type.CAPACITY_UPGRADE.newStack(upgrades));
+        }
     }
 
     public class CabinetInventory implements IItemHandler, SlottedStorage, ISerializable {
 
         private final CabinetSlot[] slots;
-        private final int capacity;
+        private final int baseCapacity;
+        private final int capacityPerUpgrade;
 
         private int usedSlotCount = 0;
         private int itemCount = 0;
         @Nullable
         private Predicate<ItemStack> itemMatcher = null;
 
-        CabinetInventory(int numSlots, int capacity) {
+        CabinetInventory(int numSlots, int baseCapacity, int capacityPerUpgrade) {
             this.slots = new CabinetSlot[numSlots];
-            this.capacity = capacity;
+            this.baseCapacity = baseCapacity;
+            this.capacityPerUpgrade = capacityPerUpgrade;
             for (int i = 0; i < slots.length; i++) {
                 slots[i] = new CabinetSlot();
             }
@@ -87,7 +137,7 @@ public abstract class TileFilingCabinet extends L9TileEntity {
 
         @Override
         public int getCapacity() {
-            return capacity;
+            return baseCapacity + capacityPerUpgrade * upgradeCount.getInt();
         }
 
         @Override
@@ -289,7 +339,8 @@ public abstract class TileFilingCabinet extends L9TileEntity {
     public static class Basic extends TileFilingCabinet {
 
         public Basic() {
-            super(FilingCabinetsConfig.cabinetBasic);
+            super(FilingCabinetsConfig.cabinetBasic,
+                    ItemUtils.matchesWithWildcard(ItemMaterial.Type.CAPACITY_UPGRADE.newStack(1)));
         }
 
         @Override
@@ -313,7 +364,8 @@ public abstract class TileFilingCabinet extends L9TileEntity {
     public static class Advanced extends TileFilingCabinet {
 
         public Advanced() {
-            super(FilingCabinetsConfig.cabinetAdvanced);
+            super(FilingCabinetsConfig.cabinetAdvanced,
+                    ItemUtils.matchesWithWildcard(ItemMaterial.Type.CAPACITY_UPGRADE.newStack(1)));
         }
 
         @Override

@@ -19,8 +19,13 @@ public class LangConst {
     private static final String TT_KEY = MISC_KEY + "tooltip.";
     public static final String TT_FILING_CABINET_BASIC = TT_KEY + "filing_cabinet.basic";
     public static final String TT_FILING_CABINET_ADVANCED = TT_KEY + "filing_cabinet.advanced";
+    public static final String TT_CAPACITY_UPGRADE = TT_KEY + "capacity_upgrade";
     public static final String TT_CABINET_INFO_SLOT_USE = TT_KEY + "cabinet_info.slot_use";
     public static final String TT_CABINET_INFO_ITEM_USE = TT_KEY + "cabinet_info.item_use";
     public static final String TT_ITEM_COUNT = TT_KEY + "item_count";
+
+    private static final String NOTIF_KEY = MISC_KEY + "notif.";
+    public static final String NOTIF_CAP_UPGRADE_SUCCESS = NOTIF_KEY + "capacity_upgrade.success";
+    public static final String NOTIF_CAP_UPGRADE_MAXED = NOTIF_KEY + "capacity_upgrade.maxed";
 
 }
