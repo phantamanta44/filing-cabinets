@@ -1,8 +1,8 @@
 {
   "type": "forge:ore_shaped",
   "pattern": [
-    "II",
-    "IN"
+    "IN",
+    "NW"
   ],
   "key": {
     "I": {
@@ -12,6 +12,10 @@
     "N": {
       "type": "forge:ore_dict",
       "ore": "nuggetIron"
+    },
+    "W": {
+      "type": "forge:ore_dict",
+      "ore": "stickWood"
     }
   },
   "result": {

@@ -1,17 +1,21 @@
 {
   "type": "forge:ore_shaped",
   "pattern": [
-    "II",
-    "IF"
+    "IN",
+    "NW"
   ],
   "key": {
     "I": {
       "type": "forge:ore_dict",
       "ore": "ingotGold"
     },
-    "F": {
+    "N": {
       "type": "forge:ore_dict",
       "ore": "nuggetGold"
+    },
+    "W": {
+      "type": "forge:ore_dict",
+      "ore": "blockMagicalWood"
     }
   },
   "result": {
